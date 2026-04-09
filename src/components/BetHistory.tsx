@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Keyboard,
@@ -27,7 +27,6 @@ interface BetHistoryProps {
   bettors?: BettorPill[];
   activeBettorId?: string;
   locked?: boolean;
-  focusPayoutSignal?: number;
   onSelectBettor?: (id: string) => void;
   onSlip?: () => void;
   onRemove: (originalIndex: number) => void;
@@ -76,7 +75,6 @@ function BetEntry({
   entry,
   results,
   locked,
-  focusPayoutSignal,
   onRemove,
   onSetPayout,
   onSetNote,
@@ -85,7 +83,6 @@ function BetEntry({
   originalIndex: number;
   results: Record<number, RaceResult>;
   locked: boolean;
-  focusPayoutSignal?: number;
   onRemove: () => void;
   onSetPayout: (payout: number | undefined) => void;
   onSetNote: (note: string) => void;
@@ -94,13 +91,6 @@ function BetEntry({
   const [rawPayout, setRawPayout] = useState<string>(
     entry.payout !== undefined ? String(entry.payout) : '',
   );
-  const payoutRef = useRef<TextInput>(null);
-
-  useEffect(() => {
-    if (focusPayoutSignal && outcome === 'win' && entry.payout === undefined) {
-      payoutRef.current?.focus();
-    }
-  }, [focusPayoutSignal]);
   const [noteEditing, setNoteEditing] = useState(false);
   const [rawNote, setRawNote] = useState(entry.note ?? '');
   const [combosOpen, setCombosOpen] = useState(false);
@@ -139,7 +129,6 @@ function BetEntry({
           <View style={styles.payoutInputWrap}>
             <Text style={styles.payoutPrefix}>$</Text>
             <TextInput
-              ref={payoutRef}
               style={styles.payoutInput}
               keyboardType="decimal-pad"
               returnKeyType="done"
@@ -230,7 +219,6 @@ export default function BetHistory({
   bettors = [],
   activeBettorId,
   locked = false,
-  focusPayoutSignal,
   onSelectBettor,
   onSlip,
   onRemove,
@@ -244,10 +232,6 @@ export default function BetHistory({
 
   const raceTotal = history.reduce((s, { entry }) => s + entry.totalCost, 0);
   const reversed = [...history].reverse();
-  // Index (in original order) of the first unpaid win — the one that gets focus
-  const firstUnpaidWinIndex = history.find(
-    ({ entry }) => checkBetOutcome(entry, results) === 'win' && entry.payout === undefined,
-  )?.originalIndex;
 
   return (
     <View style={styles.section}>
@@ -332,7 +316,6 @@ export default function BetHistory({
               originalIndex={originalIndex}
               results={results}
               locked={locked}
-              focusPayoutSignal={originalIndex === firstUnpaidWinIndex ? focusPayoutSignal : undefined}
               onRemove={() => onRemove(originalIndex)}
               onSetPayout={(payout) => onSetPayout(originalIndex, payout)}
               onSetNote={(note) => onSetNote(originalIndex, note)}

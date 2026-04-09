@@ -116,7 +116,6 @@ export default function App() {
   const [quickViewBettorId, setQuickViewBettorId] = useState<string | null>(null);
   const [quickViewTrackId, setQuickViewTrackId] = useState<string | null>(null);
   const [horseError, setHorseError] = useState<string | null>(null);
-  const [payoutFocusSignal, setPayoutFocusSignal] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -311,23 +310,10 @@ export default function App() {
         };
       });
 
-      // Auto-switch to first bettor with an unpaid win (insertion order)
-      const firstUnpaidBettor = bettors.find((b) =>
-        b.history.some(
-          (e) => checkBetOutcome(e, updatedResults) === 'win' && e.payout === undefined,
-        ),
-      );
-      const newActiveBettorId = firstUnpaidBettor?.id ?? activeTrack.activeBettorId;
-
       updateTrack(activeTrackId, {
         results: updatedResults,
         bettors: updatedBettors,
-        activeBettorId: newActiveBettorId,
       });
-
-      if (firstUnpaidBettor) {
-        setPayoutFocusSignal((s) => s + 1);
-      }
     } else {
       updateTrack(activeTrackId, { results: updatedResults });
     }
@@ -1053,7 +1039,6 @@ export default function App() {
             )
             .map((b) => ({ id: b.id, name: b.name, hasUnpaidWin: unpaidWins[b.id] ?? false }))}
           activeBettorId={activeBettorId}
-          focusPayoutSignal={payoutFocusSignal}
           onSelectBettor={(id) =>
             updateTrack(activeTrackId, { activeBettorId: id })
           }
@@ -1097,25 +1082,6 @@ export default function App() {
                 return e;
               }),
             }));
-            const activeStillUnpaid = updatedBettors
-              .find((b) => b.id === activeBettorId)
-              ?.history.some(
-                (e) => checkBetOutcome(e, activeTrack.results) === 'win' && e.payout === undefined,
-              );
-            if (!activeStillUnpaid) {
-              const nextBettor = updatedBettors.find(
-                (b) =>
-                  b.id !== activeBettorId &&
-                  b.history.some(
-                    (e) => checkBetOutcome(e, activeTrack.results) === 'win' && e.payout === undefined,
-                  ),
-              );
-              if (nextBettor) {
-                updateTrack(activeTrackId, { bettors: updatedBettors, activeBettorId: nextBettor.id });
-                setPayoutFocusSignal((s) => s + 1);
-                return;
-              }
-            }
             updateBettors(updatedBettors);
           }}
           onSetNote={(originalIndex, note) =>
