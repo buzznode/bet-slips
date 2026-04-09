@@ -9,7 +9,6 @@ interface BetTemplatesProps {
   templates: BetTemplate[];
   currentBetTypeId: string | null;
   currentModifier: ModifierId | null;
-  currentBetUnit: number;
   mode: 'apply' | 'save';
   onApply: (template: BetTemplate) => void;
   onSave: () => void;
@@ -20,7 +19,6 @@ export default function BetTemplates({
   templates,
   currentBetTypeId,
   currentModifier,
-  currentBetUnit,
   mode,
   onApply,
   onSave,
@@ -32,8 +30,7 @@ export default function BetTemplates({
     templates.some(
       (t) =>
         t.betTypeId === currentBetTypeId &&
-        t.modifier === currentModifier &&
-        t.betUnit === currentBetUnit,
+        t.modifier === (currentModifier ?? 'straight'),
     );
 
   const containerWidth = useRef(0);
