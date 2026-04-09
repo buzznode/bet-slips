@@ -116,6 +116,7 @@ export default function App() {
   const [quickViewBettorId, setQuickViewBettorId] = useState<string | null>(null);
   const [quickViewTrackId, setQuickViewTrackId] = useState<string | null>(null);
   const [horseError, setHorseError] = useState<string | null>(null);
+  const [payoutFocusSignal, setPayoutFocusSignal] = useState(0);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -309,10 +310,24 @@ export default function App() {
           result: null,
         };
       });
+
+      // Auto-switch to first bettor with an unpaid win (insertion order)
+      const firstUnpaidBettor = bettors.find((b) =>
+        b.history.some(
+          (e) => checkBetOutcome(e, updatedResults) === 'win' && e.payout === undefined,
+        ),
+      );
+      const newActiveBettorId = firstUnpaidBettor?.id ?? activeTrack.activeBettorId;
+
       updateTrack(activeTrackId, {
         results: updatedResults,
         bettors: updatedBettors,
+        activeBettorId: newActiveBettorId,
       });
+
+      if (firstUnpaidBettor) {
+        setPayoutFocusSignal((s) => s + 1);
+      }
     } else {
       updateTrack(activeTrackId, { results: updatedResults });
     }
@@ -320,6 +335,14 @@ export default function App() {
 
   function handleAdvanceRace() {
     if (rdCurrentRace >= active.raceDay.lastRace) return;
+    if (Object.values(unpaidWins).some(Boolean)) {
+      Alert.alert(
+        'Unpaid Winnings',
+        'Enter payouts for all winning bets before advancing to the next race.',
+        [{ text: 'OK' }],
+      );
+      return;
+    }
     updateBettors(
       bettors.map((b) =>
         b.raceDay.currentRace === rdCurrentRace
@@ -417,6 +440,14 @@ export default function App() {
       rd.firstRace !== prev.firstRace || rd.lastRace !== prev.lastRace;
 
     if (raceSwitched) {
+      if (Object.values(unpaidWins).some(Boolean)) {
+        Alert.alert(
+          'Unpaid Winnings',
+          'Enter payouts for all winning bets before changing races.',
+          [{ text: 'OK' }],
+        );
+        return;
+      }
       setHorseError(null);
       const clearSelections = {
         selectedBetType: null,
@@ -870,7 +901,17 @@ export default function App() {
         <TrackSelector
           tracks={tracks}
           activeTrackId={activeTrackId}
-          onSelect={(id) => patchState({ activeTrackId: id })}
+          onSelect={(id) => {
+            if (id !== activeTrackId && Object.values(unpaidWins).some(Boolean)) {
+              Alert.alert(
+                'Unpaid Winnings',
+                'Enter payouts for all winning bets before switching tracks.',
+                [{ text: 'OK' }],
+              );
+              return;
+            }
+            patchState({ activeTrackId: id });
+          }}
           onLongPress={(id) => setQuickViewTrackId(id)}
           onAdd={handleAddTrack}
           onRename={handleRenameTrack}
@@ -1012,6 +1053,7 @@ export default function App() {
             )
             .map((b) => ({ id: b.id, name: b.name, hasUnpaidWin: unpaidWins[b.id] ?? false }))}
           activeBettorId={activeBettorId}
+          focusPayoutSignal={payoutFocusSignal}
           onSelectBettor={(id) =>
             updateTrack(activeTrackId, { activeBettorId: id })
           }
