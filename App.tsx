@@ -356,8 +356,6 @@ export default function App() {
 
   function handleSaveTemplate() {
     if (!active.selectedBetType) return;
-    const effectiveModifierCheck = active.selectedModifier ?? 'straight';
-    if (templates.some((t) => t.betTypeId === active.selectedBetType && t.modifier === effectiveModifierCheck)) return;
     const bet = BET_TYPES.find((b) => b.id === active.selectedBetType)!;
     const effectiveModifier = active.selectedModifier ?? 'straight';
     const modifierName =
@@ -966,6 +964,7 @@ export default function App() {
           templates={templates}
           currentBetTypeId={active.selectedBetType}
           currentModifier={active.selectedModifier}
+          currentBetUnit={active.betUnit}
           mode="apply"
           onApply={handleApplyTemplate}
           onSave={handleSaveTemplate}
@@ -1030,6 +1029,7 @@ export default function App() {
           templates={templates}
           currentBetTypeId={active.selectedBetType}
           currentModifier={active.selectedModifier}
+          currentBetUnit={active.betUnit}
           mode="save"
           onApply={handleApplyTemplate}
           onSave={handleSaveTemplate}

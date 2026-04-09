@@ -3,12 +3,11 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native';
 import type { BetTemplate, ModifierId } from '../types';
 import { colors, spacing, radius, font } from '../theme';
 
-const MAX_TEMPLATES = 8;
-
 interface BetTemplatesProps {
   templates: BetTemplate[];
   currentBetTypeId: string | null;
   currentModifier: ModifierId | null;
+  currentBetUnit: number;
   mode: 'apply' | 'save';
   onApply: (template: BetTemplate) => void;
   onSave: () => void;
@@ -19,18 +18,20 @@ export default function BetTemplates({
   templates,
   currentBetTypeId,
   currentModifier,
+  currentBetUnit,
   mode,
   onApply,
   onSave,
   onDelete,
 }: BetTemplatesProps) {
-  const canSave = currentBetTypeId !== null && templates.length < MAX_TEMPLATES;
+  const canSave = currentBetTypeId !== null;
   const isDuplicate =
     currentBetTypeId !== null &&
     templates.some(
       (t) =>
         t.betTypeId === currentBetTypeId &&
-        t.modifier === (currentModifier ?? 'straight'),
+        t.modifier === (currentModifier ?? 'straight') &&
+        t.betUnit === currentBetUnit,
     );
 
   const containerWidth = useRef(0);
