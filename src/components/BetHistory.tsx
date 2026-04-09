@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Alert,
+  Keyboard,
   View,
   Text,
   Pressable,
@@ -141,20 +142,28 @@ function BetEntry({
               ref={payoutRef}
               style={styles.payoutInput}
               keyboardType="decimal-pad"
+              returnKeyType="done"
               placeholder="0.00"
               placeholderTextColor={colors.textDim}
               value={rawPayout}
-              onChangeText={setRawPayout}
+              onChangeText={(text) => {
+                setRawPayout(text);
+                const val = parseFloat(text);
+                if (text === '') {
+                  onSetPayout(undefined);
+                } else if (!isNaN(val)) {
+                  onSetPayout(val);
+                }
+              }}
               onBlur={() => {
                 const val = parseFloat(rawPayout);
                 if (isNaN(val) || rawPayout === '') {
-                  onSetPayout(undefined);
                   setRawPayout('');
                 } else {
-                  onSetPayout(val);
                   setRawPayout(String(val));
                 }
               }}
+              onSubmitEditing={() => Keyboard.dismiss()}
             />
           </View>
         </View>

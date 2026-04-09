@@ -1077,28 +1077,46 @@ export default function App() {
           }
           onSetPayout={(originalIndex, payout) => {
             const changedBet = active.history[originalIndex];
-            updateBettors(
-              bettors.map((b) => ({
-                ...b,
-                history: b.history.map((e, idx) => {
-                  if (b.id === activeBettorId && idx === originalIndex) {
-                    return { ...e, payout };
-                  }
-                  if (
-                    b.id !== activeBettorId &&
-                    e.raceNumber === changedBet.raceNumber &&
-                    e.betType === changedBet.betType &&
-                    e.modifier === changedBet.modifier &&
-                    e.horses.length === changedBet.horses.length &&
-                    e.horses.every((h, i) => h === changedBet.horses[i]) &&
-                    checkBetOutcome(e, activeTrack.results) === 'win'
-                  ) {
-                    return { ...e, payout };
-                  }
-                  return e;
-                }),
-              })),
-            );
+            const updatedBettors = bettors.map((b) => ({
+              ...b,
+              history: b.history.map((e, idx) => {
+                if (b.id === activeBettorId && idx === originalIndex) {
+                  return { ...e, payout };
+                }
+                if (
+                  b.id !== activeBettorId &&
+                  e.raceNumber === changedBet.raceNumber &&
+                  e.betType === changedBet.betType &&
+                  e.modifier === changedBet.modifier &&
+                  e.horses.length === changedBet.horses.length &&
+                  e.horses.every((h, i) => h === changedBet.horses[i]) &&
+                  checkBetOutcome(e, activeTrack.results) === 'win'
+                ) {
+                  return { ...e, payout };
+                }
+                return e;
+              }),
+            }));
+            const activeStillUnpaid = updatedBettors
+              .find((b) => b.id === activeBettorId)
+              ?.history.some(
+                (e) => checkBetOutcome(e, activeTrack.results) === 'win' && e.payout === undefined,
+              );
+            if (!activeStillUnpaid) {
+              const nextBettor = updatedBettors.find(
+                (b) =>
+                  b.id !== activeBettorId &&
+                  b.history.some(
+                    (e) => checkBetOutcome(e, activeTrack.results) === 'win' && e.payout === undefined,
+                  ),
+              );
+              if (nextBettor) {
+                updateTrack(activeTrackId, { bettors: updatedBettors, activeBettorId: nextBettor.id });
+                setPayoutFocusSignal((s) => s + 1);
+                return;
+              }
+            }
+            updateBettors(updatedBettors);
           }}
           onSetNote={(originalIndex, note) =>
             updateActive({
