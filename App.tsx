@@ -39,7 +39,7 @@ import {
   generatePositionalCombos,
   calculatePositionalCombinations,
 } from './src/lib/betting';
-import { summarizeDay, checkBetOutcome } from './src/lib/outcomes';
+import { summarizeDay, checkBetOutcome, isBetVisibleAtRace, isBetScratchConflict } from './src/lib/outcomes';
 import { haptic } from './src/lib/haptics';
 import { exportBackup, importBackup } from './src/lib/backup';
 import { addToArchive, parseArchive, ARCHIVE_KEY } from './src/lib/archive';
@@ -476,17 +476,14 @@ export default function App() {
       updateBettors(
         bettors.map((b) => {
           const conflictingBets = newlyScratched.length > 0
-            ? b.history.filter(
-                (e) => e.raceNumber === currentRaceNum && e.horses.some((h) => newlyScratched.includes(h)),
-              )
+            ? b.history.filter((e) => isBetScratchConflict(e, currentRaceNum, newlyScratched))
             : [];
           if (conflictingBets.length > 0) {
             affectedBettors.push({ name: b.name, count: conflictingBets.length });
           }
+          const conflictingSet = new Set(conflictingBets);
           const cleanHistory = conflictingBets.length > 0
-            ? b.history.filter(
-                (e) => !(e.raceNumber === currentRaceNum && e.horses.some((h) => newlyScratched.includes(h))),
-              )
+            ? b.history.filter((e) => !conflictingSet.has(e))
             : b.history;
 
           if (b.id === activeBettorId) {
@@ -694,6 +691,30 @@ export default function App() {
           result: null,
         };
       }),
+    );
+  }
+
+  function handleUpdateLegConfig(legIndex: number, config: { numHorses: number; scratchedHorses: number[] }) {
+    const raceNum = rdCurrentRace + legIndex;
+    const newSelectedLegs = active.selectedLegs.map((leg, i) => {
+      if (i !== legIndex) return leg;
+      return leg.filter((h) => !config.scratchedHorses.includes(h) && h <= config.numHorses);
+    });
+    updateBettors(
+      bettors.map((b) => ({
+        ...b,
+        raceDay: {
+          ...b.raceDay,
+          races: {
+            ...b.raceDay.races,
+            [raceNum]: {
+              numHorses: config.numHorses,
+              scratchedHorses: config.scratchedHorses,
+            },
+          },
+        },
+        ...(b.id === activeBettorId ? { selectedLegs: newSelectedLegs } : {}),
+      })),
     );
   }
 
@@ -983,6 +1004,7 @@ export default function App() {
             legConfigs={legConfigs}
             startRace={rdCurrentRace}
             disabled={isRaceLocked}
+            onUpdateLegConfig={handleUpdateLegConfig}
           />
         ) : isPositionalPartWheel ? (
           <PositionalSelector
@@ -1032,10 +1054,10 @@ export default function App() {
           key={activeBettorId}
           history={active.history
             .map((e, i) => ({ entry: e, originalIndex: i }))
-            .filter(({ entry }) => entry.raceNumber === rdCurrentRace)}
+            .filter(({ entry }) => isBetVisibleAtRace(entry, rdCurrentRace, activeTrack.results))}
           bettors={bettors
             .filter((b) =>
-              b.history.some((e) => e.raceNumber === rdCurrentRace),
+              b.history.some((e) => isBetVisibleAtRace(e, rdCurrentRace, activeTrack.results)),
             )
             .map((b) => ({ id: b.id, name: b.name, hasUnpaidWin: unpaidWins[b.id] ?? false }))}
           activeBettorId={activeBettorId}
@@ -1068,13 +1090,21 @@ export default function App() {
                 if (b.id === activeBettorId && idx === originalIndex) {
                   return { ...e, payout };
                 }
+                const legsMatch = changedBet.legs && changedBet.legs.length > 0
+                  ? e.legs !== undefined &&
+                    e.legs.length === changedBet.legs.length &&
+                    e.legs.every((leg, li) =>
+                      leg.length === changedBet.legs![li].length &&
+                      leg.every((h, j) => h === changedBet.legs![li][j]),
+                    )
+                  : e.horses.length === changedBet.horses.length &&
+                    e.horses.every((h, i) => h === changedBet.horses[i]);
                 if (
                   b.id !== activeBettorId &&
                   e.raceNumber === changedBet.raceNumber &&
                   e.betType === changedBet.betType &&
                   e.modifier === changedBet.modifier &&
-                  e.horses.length === changedBet.horses.length &&
-                  e.horses.every((h, i) => h === changedBet.horses[i]) &&
+                  legsMatch &&
                   checkBetOutcome(e, activeTrack.results) === 'win'
                 ) {
                   return { ...e, payout };

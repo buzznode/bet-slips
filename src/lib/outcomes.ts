@@ -2,6 +2,48 @@ import type { BetResult, RaceResult } from '../types';
 
 export type OutcomeStatus = 'win' | 'loss' | 'pending';
 
+/**
+ * Returns true if a bet should be visible in the history panel at the given race.
+ * Standard bets show only at their race. Multi-race bets show across their full
+ * range, plus after completion if won and not yet paid out.
+ */
+export function isBetVisibleAtRace(
+  entry: BetResult,
+  currentRace: number,
+  results: Record<number, RaceResult>,
+): boolean {
+  if (entry.raceNumber === currentRace) return true;
+  if (entry.legs && entry.legs.length > 0 && entry.raceNumber !== undefined) {
+    const endRace = entry.raceNumber + entry.legs.length - 1;
+    if (currentRace > entry.raceNumber && currentRace <= endRace) return true;
+    if (currentRace > endRace) {
+      return checkBetOutcome(entry, results) === 'win' && entry.payout === undefined;
+    }
+  }
+  return false;
+}
+
+/**
+ * Returns true if a bet conflicts with a scratch at the given race number.
+ * Handles both standard bets (checks horses array) and multi-race bets
+ * (checks the leg that corresponds to the scratched race).
+ */
+export function isBetScratchConflict(
+  entry: BetResult,
+  raceNum: number,
+  scratchedHorses: number[],
+): boolean {
+  if (scratchedHorses.length === 0) return false;
+  if (entry.raceNumber === raceNum && entry.horses.some((h) => scratchedHorses.includes(h))) return true;
+  if (entry.legs && entry.legs.length > 0 && entry.raceNumber !== undefined) {
+    const legIndex = raceNum - entry.raceNumber;
+    if (legIndex >= 0 && legIndex < entry.legs.length) {
+      return entry.legs[legIndex].some((h) => scratchedHorses.includes(h));
+    }
+  }
+  return false;
+}
+
 export const STANDARD_RACE_KEY = 0;
 
 export function checkBetOutcome(

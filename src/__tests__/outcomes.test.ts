@@ -215,6 +215,133 @@ describe('checkBetOutcome — Across the Board', () => {
   });
 });
 
+describe('isBetVisibleAtRace', () => {
+  const { isBetVisibleAtRace } = require('../lib/outcomes');
+
+  const multiRaceBet = (raceNumber: number, legs: number[][], payout?: number) =>
+    makeBet({
+      betType: 'Daily Double',
+      modifier: '',
+      horses: [],
+      legs,
+      combinationList: legs[0].flatMap((a) => legs[1].map((b) => [a, b])),
+      raceNumber,
+      payout,
+    });
+
+  it('standard bet visible only at its race', () => {
+    const bet = makeBet({ raceNumber: 3 });
+    expect(isBetVisibleAtRace(bet, 3, {})).toBe(true);
+    expect(isBetVisibleAtRace(bet, 4, {})).toBe(false);
+    expect(isBetVisibleAtRace(bet, 2, {})).toBe(false);
+  });
+
+  it('multi-race bet visible at its starting race', () => {
+    const bet = multiRaceBet(1, [[1], [2]]);
+    expect(isBetVisibleAtRace(bet, 1, {})).toBe(true);
+  });
+
+  it('multi-race bet visible within its range', () => {
+    const bet = multiRaceBet(1, [[1], [2]]);
+    expect(isBetVisibleAtRace(bet, 2, {})).toBe(true);
+  });
+
+  it('multi-race bet not visible after range if it lost', () => {
+    const bet = multiRaceBet(1, [[1], [2]]);
+    const results = { 1: makeResult(5), 2: makeResult(5) };
+    expect(isBetVisibleAtRace(bet, 3, results)).toBe(false);
+  });
+
+  it('multi-race bet visible after range if won and unpaid', () => {
+    const bet = multiRaceBet(1, [[1], [2]]);
+    const results = { 1: makeResult(1), 2: makeResult(2) };
+    expect(isBetVisibleAtRace(bet, 3, results)).toBe(true);
+  });
+
+  it('multi-race bet not visible after range if won and paid', () => {
+    const bet = multiRaceBet(1, [[1], [2]], 40);
+    const results = { 1: makeResult(1), 2: makeResult(2) };
+    expect(isBetVisibleAtRace(bet, 3, results)).toBe(false);
+  });
+
+  it('Pick 3 visible across all three races', () => {
+    const bet = makeBet({
+      betType: 'Pick 3',
+      modifier: '',
+      horses: [],
+      legs: [[1], [4], [6]],
+      combinationList: [[1, 4, 6]],
+      raceNumber: 5,
+    });
+    expect(isBetVisibleAtRace(bet, 5, {})).toBe(true);
+    expect(isBetVisibleAtRace(bet, 6, {})).toBe(true);
+    expect(isBetVisibleAtRace(bet, 7, {})).toBe(true);
+    expect(isBetVisibleAtRace(bet, 8, {})).toBe(false);
+  });
+});
+
+describe('isBetScratchConflict', () => {
+  const { isBetScratchConflict } = require('../lib/outcomes');
+
+  it('returns false when no scratches', () => {
+    const bet = makeBet({ raceNumber: 2, horses: [3, 5] });
+    expect(isBetScratchConflict(bet, 2, [])).toBe(false);
+  });
+
+  it('detects scratch conflict in standard bet horses array', () => {
+    const bet = makeBet({ raceNumber: 2, horses: [3, 5] });
+    expect(isBetScratchConflict(bet, 2, [3])).toBe(true);
+    expect(isBetScratchConflict(bet, 2, [7])).toBe(false);
+  });
+
+  it('no conflict when scratch is at a different race', () => {
+    const bet = makeBet({ raceNumber: 2, horses: [3, 5] });
+    expect(isBetScratchConflict(bet, 3, [3])).toBe(false);
+  });
+
+  it('detects scratch conflict in multi-race leg 0 (starting race)', () => {
+    const bet = makeBet({
+      betType: 'Daily Double',
+      modifier: '',
+      horses: [],
+      legs: [[3, 5], [7]],
+      combinationList: [[3, 7], [5, 7]],
+      raceNumber: 1,
+    });
+    expect(isBetScratchConflict(bet, 1, [3])).toBe(true);
+    expect(isBetScratchConflict(bet, 1, [7])).toBe(false);
+  });
+
+  it('detects scratch conflict in multi-race leg 1 (future race)', () => {
+    const bet = makeBet({
+      betType: 'Daily Double',
+      modifier: '',
+      horses: [],
+      legs: [[3, 5], [7]],
+      combinationList: [[3, 7], [5, 7]],
+      raceNumber: 1,
+    });
+    expect(isBetScratchConflict(bet, 2, [7])).toBe(true);
+    expect(isBetScratchConflict(bet, 2, [3])).toBe(false);
+  });
+
+  it('detects scratch in any Pick 3 leg', () => {
+    const bet = makeBet({
+      betType: 'Pick 3',
+      modifier: '',
+      horses: [],
+      legs: [[1], [4], [6]],
+      combinationList: [[1, 4, 6]],
+      raceNumber: 5,
+    });
+    expect(isBetScratchConflict(bet, 5, [1])).toBe(true);
+    expect(isBetScratchConflict(bet, 6, [4])).toBe(true);
+    expect(isBetScratchConflict(bet, 7, [6])).toBe(true);
+    expect(isBetScratchConflict(bet, 7, [4])).toBe(false);
+    expect(isBetScratchConflict(bet, 8, [6])).toBe(false);
+  });
+});
+
 describe('checkBetOutcome — Superfecta', () => {
   it('returns pending when no results', () => {
     expect(checkBetOutcome(makeBet({ betType: 'Superfecta', combinationList: [[1, 2, 3, 4]] }), {})).toBe('pending');
