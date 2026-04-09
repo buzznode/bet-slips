@@ -64,7 +64,6 @@ import BetSummaryModal from './src/components/BetSummaryModal';
 import DaySummaryModal from './src/components/DaySummaryModal';
 import BettorQuickView from './src/components/BettorQuickView';
 import TrackQuickView from './src/components/TrackQuickView';
-import ErrorToast from './src/components/ErrorToast';
 import { colors, spacing, radius, font } from './src/theme';
 
 const STORAGE_KEY = 'bet-slips-native:v1';
@@ -978,8 +977,10 @@ export default function App() {
             positions={BET_TYPES.find((b) => b.id === active.selectedBetType)?.positions}
             exactaKeyPosition={active.exactaKeyPosition}
             disabled={isRaceLocked}
+            horseError={horseError}
             onToggle={handleToggleHorse}
             onKeyPositionChange={(pos) => updateActive({ exactaKeyPosition: pos, selectedHorses: [], result: null })}
+            onClearError={() => setHorseError(null)}
           />
         )}
 
@@ -1134,12 +1135,6 @@ export default function App() {
         />
       )}
 
-      {horseError && (
-        <ErrorToast
-          message={horseError}
-          onDismiss={() => setHorseError(null)}
-        />
-      )}
 
       <DataManagementModal
         visible={settingsOpen}

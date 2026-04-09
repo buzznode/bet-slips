@@ -18,8 +18,10 @@ interface HorseSelectorProps {
   positions?: number;
   exactaKeyPosition?: 'top' | 'bottom';
   disabled?: boolean;
+  horseError?: string | null;
   onToggle: (horse: number) => void;
   onKeyPositionChange?: (pos: 'top' | 'bottom') => void;
+  onClearError?: () => void;
 }
 
 export default function HorseSelector({
@@ -32,8 +34,10 @@ export default function HorseSelector({
   positions = 1,
   exactaKeyPosition = 'top',
   disabled = false,
+  horseError = null,
   onToggle,
   onKeyPositionChange,
+  onClearError,
 }: HorseSelectorProps) {
   const [expanded, setExpanded] = useState(true);
   const horses = Array.from({ length: numHorses }, (_, i) => i + 1);
@@ -70,8 +74,10 @@ export default function HorseSelector({
     }
     if (modifier === 'straight' || modifier === null) {
       if (positions > 1) {
-        const next = ORDINALS[selectedHorses.length];
-        if (next) return `Select your ${next} place horse`;
+        if (selectedHorses.length < positions) {
+          const next = ORDINALS[selectedHorses.length];
+          if (next) return `Select your ${next} place horse`;
+        }
         return `${ORDINALS.slice(0, positions).map((o, i) => `${o}: ${selectedHorses[i]}`).join(', ')}`;
       }
     }
@@ -132,7 +138,18 @@ export default function HorseSelector({
               </Text>
             </View>
           )}
-          <Text style={styles.hint}>{getHint()}</Text>
+          {horseError ? (
+            <View style={styles.error}>
+              <Text style={styles.errorText}>{horseError}</Text>
+              {onClearError && (
+                <Pressable onPress={onClearError} style={styles.errorClose}>
+                  <Text style={styles.errorCloseText}>✕</Text>
+                </Pressable>
+              )}
+            </View>
+          ) : (
+            <Text style={styles.hint}>{getHint()}</Text>
+          )}
         </>
       )}
     </View>
@@ -222,5 +239,29 @@ const styles = StyleSheet.create({
     fontSize: font.sm,
     marginTop: spacing.sm,
     fontStyle: 'italic',
+  },
+  error: {
+    backgroundColor: colors.dangerDim,
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
+    marginTop: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.sm,
+  },
+  errorText: {
+    color: colors.text,
+    fontSize: font.sm,
+    flex: 1,
+    lineHeight: 18,
+  },
+  errorClose: {
+    padding: spacing.xs,
+  },
+  errorCloseText: {
+    color: colors.textMuted,
+    fontSize: font.sm,
   },
 });
