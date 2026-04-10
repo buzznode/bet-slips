@@ -43,8 +43,9 @@ const POSITIONAL_BET_TYPES = new Set(['Trifecta', 'Superfecta']);
 function formatHorsesText(result: BetResult): string {
   if (result.legs && result.legs.length > 0) {
     const isPositional = POSITIONAL_BET_TYPES.has(result.betType) && result.modifier === 'Part Wheel';
+    const startRace = result.raceNumber ?? 1;
     return result.legs
-      .map((leg, i) => `${isPositional ? ORDINALS[i] : `R${i + 1}`}: ${leg.join(',')}`)
+      .map((leg, i) => `${isPositional ? ORDINALS[i] : `R${startRace + i}`}: ${leg.join(',')}`)
       .join(' / ');
   }
   if (KEY_MODIFIERS_DISPLAY.includes(result.modifier) && result.horses.length > 0) {
