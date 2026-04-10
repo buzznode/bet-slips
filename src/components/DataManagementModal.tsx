@@ -6,8 +6,12 @@ import {
   Pressable,
   StyleSheet,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import { colors, spacing, radius, font } from '../theme';
+
+const PRIVACY_URL    = 'https://buzznode.github.io/bet-slips-native/privacy.html';
+const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips-native/disclaimer.html';
 
 interface DataManagementModalProps {
   visible: boolean;
@@ -126,6 +130,16 @@ export default function DataManagementModal({
             <Text style={styles.archiveBtnText}>📖 App Guide</Text>
           </Pressable>
 
+          <View style={styles.divider} />
+
+          <Text style={styles.legalLabel}>Legal</Text>
+          <Pressable style={styles.archiveBtn} onPress={() => Linking.openURL(DISCLAIMER_URL)}>
+            <Text style={styles.archiveBtnText}>⚠️ Disclaimer</Text>
+          </Pressable>
+          <Pressable style={[styles.archiveBtn, { marginTop: spacing.sm }]} onPress={() => Linking.openURL(PRIVACY_URL)}>
+            <Text style={styles.archiveBtnText}>🔒 Privacy Policy</Text>
+          </Pressable>
+
           <Pressable style={styles.closeBtn} onPress={handleClose}>
             <Text style={styles.closeBtnText}>Close</Text>
           </Pressable>
@@ -242,5 +256,13 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: font.md,
     fontWeight: '600',
+  },
+  legalLabel: {
+    color: colors.textDim,
+    fontSize: font.sm,
+    fontWeight: '700',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: spacing.sm,
   },
 });

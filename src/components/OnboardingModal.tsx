@@ -6,6 +6,7 @@ import {
   Pressable,
   StyleSheet,
   Dimensions,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, spacing, radius, font } from '../theme';
@@ -15,7 +16,14 @@ interface OnboardingModalProps {
   onDismiss: () => void;
 }
 
-const SCREENS = [
+const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips-native/disclaimer.html';
+
+const SCREENS: Array<{
+  emoji: string;
+  title: string;
+  body: string;
+  isDisclaimer?: boolean;
+}> = [
   {
     emoji: '🏇',
     title: 'Welcome to Bet Slips',
@@ -46,6 +54,12 @@ const SCREENS = [
     title: 'End of Day',
     body: 'Tap "Final Summary" to see the full day breakdown. When you\'re done, hit Reset to clear the day and start fresh.',
   },
+  {
+    emoji: '⚠️',
+    title: 'Before You Begin',
+    body: 'Bet Slips is for entertainment and personal record-keeping only. It does not guarantee winnings or outcomes. Wagering involves real financial risk — never bet more than you can afford to lose. You must be 18+ and comply with all local laws. If you or someone you know has a gambling problem, call 1-800-522-4700.',
+    isDisclaimer: true,
+  },
 ];
 
 export default function OnboardingModal({ visible, onDismiss }: OnboardingModalProps) {
@@ -66,18 +80,28 @@ export default function OnboardingModal({ visible, onDismiss }: OnboardingModalP
   }
 
   return (
-    <Modal visible={visible} animationType="fade" transparent onRequestClose={onDismiss}>
+    <Modal visible={visible} animationType="fade" transparent onRequestClose={screen.isDisclaimer ? undefined : onDismiss}>
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
           <View style={styles.card}>
-            <Pressable style={styles.skipBtn} onPress={onDismiss}>
-              <Text style={styles.skipText}>Skip</Text>
-            </Pressable>
+            {!screen.isDisclaimer && (
+              <Pressable style={styles.skipBtn} onPress={onDismiss}>
+                <Text style={styles.skipText}>Skip</Text>
+              </Pressable>
+            )}
+            {screen.isDisclaimer && <View style={styles.skipBtn} />}
 
             <View style={styles.body}>
               <Text style={styles.emoji}>{screen.emoji}</Text>
-              <Text style={styles.title}>{screen.title}</Text>
+              <Text style={[styles.title, screen.isDisclaimer && styles.titleWarning]}>
+                {screen.title}
+              </Text>
               <Text style={styles.bodyText}>{screen.body}</Text>
+              {screen.isDisclaimer && (
+                <Pressable onPress={() => Linking.openURL(DISCLAIMER_URL)}>
+                  <Text style={styles.disclaimerLink}>Read full disclaimer →</Text>
+                </Pressable>
+              )}
             </View>
 
             <View style={styles.footer}>
@@ -90,9 +114,12 @@ export default function OnboardingModal({ visible, onDismiss }: OnboardingModalP
                 ))}
               </View>
 
-              <Pressable style={styles.nextBtn} onPress={handleNext}>
+              <Pressable
+                style={[styles.nextBtn, screen.isDisclaimer && styles.nextBtnWarning]}
+                onPress={handleNext}
+              >
                 <Text style={styles.nextBtnText}>
-                  {isLast ? 'Get Started' : 'Next'}
+                  {screen.isDisclaimer ? 'I Understand & Accept' : isLast ? 'Get Started' : 'Next'}
                 </Text>
               </Pressable>
             </View>
@@ -181,9 +208,21 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     borderRadius: radius.md,
   },
+  nextBtnWarning: {
+    backgroundColor: colors.danger,
+  },
   nextBtnText: {
     color: colors.text,
     fontSize: font.md,
     fontWeight: '700',
+  },
+  titleWarning: {
+    color: colors.warning,
+  },
+  disclaimerLink: {
+    color: colors.primary,
+    fontSize: font.sm,
+    fontWeight: '600',
+    marginTop: spacing.xs,
   },
 });
