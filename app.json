@@ -14,8 +14,12 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.buzznode.betslips"
+      "bundleIdentifier": "com.buzznode.betslips",
+      "privacyManifests": {
+        "NSPrivacyAccessedAPITypes": []
+      }
     },
+    "privacyPolicyUrl": "https://buzznode.github.io/bet-slips-native/privacy.html",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
