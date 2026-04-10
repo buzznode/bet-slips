@@ -215,6 +215,199 @@ describe('checkBetOutcome — Across the Board', () => {
   });
 });
 
+describe('checkBetOutcome — Trifecta Part Wheel (positional)', () => {
+  // Positional part-wheel stores legs (per-position selections) AND horses (legs.flat()).
+  // Must NOT be treated as multi-race — it's a single-race bet.
+  function makePositionalPartWheel(legs: number[][], raceNumber = 5): BetResult {
+    const { generatePositionalCombos } = require('../lib/betting');
+    return makeBet({
+      betType: 'Trifecta',
+      modifier: 'Part Wheel',
+      horses: legs.flat(),
+      legs,
+      combinationList: generatePositionalCombos(legs),
+      raceNumber,
+    });
+  }
+
+  it('returns pending when 2nd not entered', () => {
+    const bet = makePositionalPartWheel([[1, 2], [3, 4], [5]]);
+    expect(checkBetOutcome(bet, { 5: makeResult(1, null) })).toBe('pending');
+  });
+
+  it('returns pending when 3rd not entered', () => {
+    const bet = makePositionalPartWheel([[1, 2], [3, 4], [5]]);
+    expect(checkBetOutcome(bet, { 5: makeResult(1, 3, null) })).toBe('pending');
+  });
+
+  it('wins when result matches a valid combination', () => {
+    const bet = makePositionalPartWheel([[1, 2], [3, 4], [5]]);
+    // valid combos: [1,3,5],[1,4,5],[2,3,5],[2,4,5]
+    expect(checkBetOutcome(bet, { 5: makeResult(1, 4, 5) })).toBe('win');
+  });
+
+  it('loses when result does not match any combination', () => {
+    const bet = makePositionalPartWheel([[1, 2], [3, 4], [5]]);
+    expect(checkBetOutcome(bet, { 5: makeResult(1, 3, 6) })).toBe('loss');
+  });
+
+  it('is NOT evaluated as multi-race (does not look at race 6 or 7)', () => {
+    const bet = makePositionalPartWheel([[1], [2], [3]]);
+    // Only race 5 result — should resolve, not stay pending waiting for races 6 & 7
+    expect(checkBetOutcome(bet, { 5: makeResult(1, 2, 3) })).toBe('win');
+    expect(checkBetOutcome(bet, { 5: makeResult(1, 2, 4) })).toBe('loss');
+  });
+});
+
+describe('checkBetOutcome — Superfecta Part Wheel (positional)', () => {
+  function makeSuperPositionalPartWheel(legs: number[][], raceNumber = 3): BetResult {
+    const { generatePositionalCombos } = require('../lib/betting');
+    return makeBet({
+      betType: 'Superfecta',
+      modifier: 'Part Wheel',
+      horses: legs.flat(),
+      legs,
+      combinationList: generatePositionalCombos(legs),
+      raceNumber,
+    });
+  }
+
+  it('returns pending when 4th not entered', () => {
+    const bet = makeSuperPositionalPartWheel([[1], [2], [3], [4, 5]]);
+    expect(checkBetOutcome(bet, { 3: makeResult(1, 2, 3, null) })).toBe('pending');
+  });
+
+  it('wins when result matches a valid combination', () => {
+    const bet = makeSuperPositionalPartWheel([[1], [2], [3], [4, 5]]);
+    expect(checkBetOutcome(bet, { 3: makeResult(1, 2, 3, 4) })).toBe('win');
+    expect(checkBetOutcome(bet, { 3: makeResult(1, 2, 3, 5) })).toBe('win');
+  });
+
+  it('loses when result does not match', () => {
+    const bet = makeSuperPositionalPartWheel([[1], [2], [3], [4, 5]]);
+    expect(checkBetOutcome(bet, { 3: makeResult(1, 2, 3, 6) })).toBe('loss');
+  });
+
+  it('is NOT evaluated as multi-race', () => {
+    const bet = makeSuperPositionalPartWheel([[1], [2], [3], [4]]);
+    expect(checkBetOutcome(bet, { 3: makeResult(1, 2, 3, 4) })).toBe('win');
+  });
+});
+
+describe('checkBetOutcome — Trifecta Key Horse', () => {
+  function makeTrifectaKeyHorse(horses: number[], raceNumber = 2): BetResult {
+    const { generateCombinationList } = require('../lib/betting');
+    return makeBet({
+      betType: 'Trifecta',
+      modifier: 'Key Horse',
+      horses,
+      combinationList: generateCombinationList('trifecta', 'key-horse', horses),
+      raceNumber,
+    });
+  }
+
+  it('wins when key horse finishes 1st', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(4, 5, 6) })).toBe('win');
+  });
+
+  it('wins when key horse finishes 2nd', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(5, 4, 6) })).toBe('win');
+  });
+
+  it('wins when key horse finishes 3rd', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(5, 6, 4) })).toBe('win');
+  });
+
+  it('loses when result uses horses not in the ticket', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(1, 2, 3) })).toBe('loss');
+  });
+
+  it('loses when key horse is not in the result at all', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(5, 6, 7) })).toBe('loss');
+  });
+
+  it('returns pending when 3rd not entered', () => {
+    const bet = makeTrifectaKeyHorse([4, 5, 6, 7]);
+    expect(checkBetOutcome(bet, { 2: makeResult(4, 5, null) })).toBe('pending');
+  });
+});
+
+describe('checkBetOutcome — Superfecta Key Horse', () => {
+  function makeSuperKeyHorse(horses: number[], raceNumber = 1): BetResult {
+    const { generateCombinationList } = require('../lib/betting');
+    return makeBet({
+      betType: 'Superfecta',
+      modifier: 'Key Horse',
+      horses,
+      combinationList: generateCombinationList('superfecta', 'key-horse', horses),
+      raceNumber,
+    });
+  }
+
+  it('wins when key horse finishes 1st', () => {
+    const bet = makeSuperKeyHorse([1, 2, 3, 4, 5]);
+    expect(checkBetOutcome(bet, { 1: makeResult(1, 2, 3, 4) })).toBe('win');
+  });
+
+  it('wins when key horse finishes 4th', () => {
+    const bet = makeSuperKeyHorse([1, 2, 3, 4, 5]);
+    expect(checkBetOutcome(bet, { 1: makeResult(2, 3, 4, 1) })).toBe('win');
+  });
+
+  it('loses when key horse is not in the result', () => {
+    const bet = makeSuperKeyHorse([1, 2, 3, 4, 5]);
+    expect(checkBetOutcome(bet, { 1: makeResult(2, 3, 4, 5) })).toBe('loss');
+  });
+
+  it('returns pending when 4th not entered', () => {
+    const bet = makeSuperKeyHorse([1, 2, 3, 4, 5]);
+    expect(checkBetOutcome(bet, { 1: makeResult(1, 2, 3, null) })).toBe('pending');
+  });
+});
+
+describe('checkBetOutcome — Quinella Wheel / Part Wheel', () => {
+  function makeQuinellaWheel(horses: number[], raceNumber = 4): BetResult {
+    const { generateCombinationList } = require('../lib/betting');
+    return makeBet({
+      betType: 'Quinella',
+      modifier: 'Wheel',
+      horses,
+      combinationList: generateCombinationList('quinella', 'wheel', horses),
+      raceNumber,
+    });
+  }
+
+  it('wins when key horse and any with-horse finish in top 2 (any order)', () => {
+    const bet = makeQuinellaWheel([3, 1, 2, 4]);
+    // key=3, with=[1,2,4]: combos are [3,1],[3,2],[3,4]
+    expect(checkBetOutcome(bet, { 4: makeResult(3, 1) })).toBe('win');
+    expect(checkBetOutcome(bet, { 4: makeResult(1, 3) })).toBe('win');
+    expect(checkBetOutcome(bet, { 4: makeResult(3, 4) })).toBe('win');
+    expect(checkBetOutcome(bet, { 4: makeResult(4, 3) })).toBe('win');
+  });
+
+  it('loses when key horse is not in top 2', () => {
+    const bet = makeQuinellaWheel([3, 1, 2, 4]);
+    expect(checkBetOutcome(bet, { 4: makeResult(1, 2) })).toBe('loss');
+  });
+
+  it('loses when key horse is in top 2 but with-horse is not', () => {
+    const bet = makeQuinellaWheel([3, 1, 2]);
+    // key=3, with=[1,2]: combos [3,1],[3,2] — horse 5 is not covered
+    expect(checkBetOutcome(bet, { 4: makeResult(3, 5) })).toBe('loss');
+  });
+
+  it('returns pending when 2nd not entered', () => {
+    const bet = makeQuinellaWheel([3, 1, 2]);
+    expect(checkBetOutcome(bet, { 4: makeResult(3, null) })).toBe('pending');
+  });
+});
+
 describe('isBetVisibleAtRace', () => {
   const { isBetVisibleAtRace } = require('../lib/outcomes');
 

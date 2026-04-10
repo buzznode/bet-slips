@@ -52,7 +52,7 @@ export function checkBetOutcome(
 ): OutcomeStatus {
   const raceKey = entry.raceNumber ?? STANDARD_RACE_KEY;
 
-  if (entry.legs && entry.legs.length > 0) {
+  if (entry.legs && entry.legs.length > 0 && entry.horses.length === 0) {
     if (entry.raceNumber === undefined) return 'pending';
 
     for (let i = 0; i < entry.legs.length; i++) {
