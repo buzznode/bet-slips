@@ -1,25 +1,27 @@
 {
   "expo": {
-    "name": "bet-slips-native",
+    "name": "Bet Slips",
     "slug": "bet-slips-native",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#080d1a"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.buzznode.betslips"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#080d1a"
       },
+      "package": "com.buzznode.betslips",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
