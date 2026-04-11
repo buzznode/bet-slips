@@ -14,8 +14,8 @@ export const colors = {
   successDim:   '#14532d',
   danger:       '#ef4444',
   dangerDim:    '#7f1d1d',
-  warning:      '#f59e0b',
-  warningDim:   '#78350f',
+  warning:      '#B8860B',
+  warningDim:   '#523C05',
   scratch:      '#1e2d4a',
   scratchText:  '#64748b',
 };
