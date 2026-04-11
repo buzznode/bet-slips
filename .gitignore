@@ -40,6 +40,10 @@ yarn-error.*
 /ios
 /android
 
+# Credentials (never commit these)
+google-service-account.json
+*.env
+
 # Local config files (not for version control)
 CLAUDE.md
 .gitignore
