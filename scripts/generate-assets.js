@@ -13,8 +13,8 @@ const C = {
   bg:      '#080d1a',
   surface: '#0e1628',
   border:  '#1e2d4a',
-  gold:    '#d97706',
-  goldLt:  '#f59e0b',
+  gold:    '#B8860B',
+  goldLt:  '#D4A017',
   text:    '#f1f5f9',
   dim:     '#64748b',
 };
