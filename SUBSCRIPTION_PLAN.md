@@ -30,7 +30,7 @@
 - **Bet slip sharing** — share a formatted slip with others
 - **Data backup & restore** — export/import full session data
 - **Race day archive** — access historical race days
-- **Auto-sync payout across bettors** — entering a payout propagates to all bettors on the same bet
+- **Auto-sync payout across bettors** — entering a payout propagates to all bettors on the same bet *(currently implemented — needs to be gated behind Pro)*
 - **Bettor & track quick views** — summary dashboards per bettor or track
 
 ---
@@ -54,5 +54,5 @@
 
 ### Upgrade flow
 - Gate triggers show a paywall modal (RevenueCat Paywalls or custom)
-- Annual plan only — no monthly option to keep pricing simple
-- Free trial TBD (Apple allows up to 1 year introductory offer)
+- Annual plan only — no monthly option
+- No free trial
