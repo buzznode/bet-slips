@@ -2,8 +2,6 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { colors, spacing, font } from '../theme';
 
-const version = require('../../package.json').version;
-
 interface HeaderProps {
   onReset: () => void;
   onSettings: () => void;
@@ -14,7 +12,6 @@ export default function Header({ onReset, onSettings }: HeaderProps) {
     <View style={styles.header}>
       <View style={styles.left}>
         <Text style={styles.title}>🏇 Bet Slips</Text>
-        <Text style={styles.version}>v{version}</Text>
       </View>
       <View style={styles.right}>
         <Pressable style={styles.settingsBtn} onPress={onSettings}>
@@ -54,10 +51,6 @@ const styles = StyleSheet.create({
     fontSize: font.xl,
     fontWeight: '800',
     letterSpacing: -0.5,
-  },
-  version: {
-    color: colors.textDim,
-    fontSize: font.sm,
   },
   settingsBtn: {
     paddingHorizontal: spacing.sm + 2,

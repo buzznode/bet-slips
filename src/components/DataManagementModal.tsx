@@ -12,6 +12,7 @@ import { colors, spacing, radius, font } from '../theme';
 
 const PRIVACY_URL    = 'https://buzznode.github.io/bet-slips-native/privacy.html';
 const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips-native/disclaimer.html';
+const version = require('../../package.json').version;
 
 interface DataManagementModalProps {
   visible: boolean;
@@ -140,6 +141,8 @@ export default function DataManagementModal({
             <Text style={styles.archiveBtnText}>🔒 Privacy Policy</Text>
           </Pressable>
 
+          <Text style={styles.versionText}>v{version}</Text>
+
           <Pressable style={styles.closeBtn} onPress={handleClose}>
             <Text style={styles.closeBtnText}>Close</Text>
           </Pressable>
@@ -256,6 +259,12 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: font.md,
     fontWeight: '600',
+  },
+  versionText: {
+    color: colors.textMuted,
+    fontSize: font.sm,
+    textAlign: 'center',
+    marginTop: spacing.lg,
   },
   legalLabel: {
     color: colors.textDim,
