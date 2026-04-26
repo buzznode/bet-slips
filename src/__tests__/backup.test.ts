@@ -7,9 +7,9 @@ const MOCK_STATE = {
 };
 
 describe('buildBackupPayload', () => {
-  it('sets appKey to bet-slips-native', () => {
+  it('sets appKey to bet-slips', () => {
     const payload = buildBackupPayload(MOCK_STATE, '1.3.0');
-    expect(payload.appKey).toBe('bet-slips-native');
+    expect(payload.appKey).toBe('bet-slips');
   });
 
   it('includes the provided version', () => {
@@ -50,17 +50,17 @@ describe('validateBackupPayload', () => {
   });
 
   it('returns false when version is missing', () => {
-    const payload = { appKey: 'bet-slips-native', exportedAt: new Date().toISOString(), state: MOCK_STATE };
+    const payload = { appKey: 'bet-slips', exportedAt: new Date().toISOString(), state: MOCK_STATE };
     expect(validateBackupPayload(payload)).toBe(false);
   });
 
   it('returns false when state is null', () => {
-    const payload = { appKey: 'bet-slips-native', version: '1.3.0', exportedAt: new Date().toISOString(), state: null };
+    const payload = { appKey: 'bet-slips', version: '1.3.0', exportedAt: new Date().toISOString(), state: null };
     expect(validateBackupPayload(payload)).toBe(false);
   });
 
   it('returns false when state is a primitive', () => {
-    const payload = { appKey: 'bet-slips-native', version: '1.3.0', exportedAt: new Date().toISOString(), state: 'bad' };
+    const payload = { appKey: 'bet-slips', version: '1.3.0', exportedAt: new Date().toISOString(), state: 'bad' };
     expect(validateBackupPayload(payload)).toBe(false);
   });
 

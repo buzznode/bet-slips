@@ -16,7 +16,7 @@ interface OnboardingModalProps {
   onDismiss: () => void;
 }
 
-const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips-native/disclaimer.html';
+const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips/disclaimer.html';
 
 const SCREENS: Array<{
   emoji: string;

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Bet Slips",
-    "slug": "bet-slips-native",
+    "slug": "bet-slips",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,7 +19,7 @@
         "NSPrivacyAccessedAPITypes": []
       }
     },
-    "privacyPolicyUrl": "https://buzznode.github.io/bet-slips-native/privacy.html",
+    "privacyPolicyUrl": "https://buzznode.github.io/bet-slips/privacy.html",
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

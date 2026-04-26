@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import { colors, spacing, radius, font } from '../theme';
 
-const PRIVACY_URL    = 'https://buzznode.github.io/bet-slips-native/privacy.html';
-const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips-native/disclaimer.html';
+const PRIVACY_URL    = 'https://buzznode.github.io/bet-slips/privacy.html';
+const DISCLAIMER_URL = 'https://buzznode.github.io/bet-slips/disclaimer.html';
 const version = require('../../package.json').version;
 
 interface DataManagementModalProps {

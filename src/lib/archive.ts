@@ -2,7 +2,7 @@ import type { TrackSession } from '../types';
 import { summarizeDay } from './outcomes';
 import type { DaySummary } from './outcomes';
 
-export const ARCHIVE_KEY = 'bet-slips-native:archive';
+export const ARCHIVE_KEY = 'bet-slips:archive';
 export const MAX_ARCHIVE_ENTRIES = 30;
 
 export interface ArchiveEntry {

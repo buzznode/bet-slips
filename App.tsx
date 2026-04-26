@@ -66,7 +66,7 @@ import BettorQuickView from './src/components/BettorQuickView';
 import TrackQuickView from './src/components/TrackQuickView';
 import { colors, spacing, radius, font } from './src/theme';
 
-const STORAGE_KEY = 'bet-slips-native:v1';
+const STORAGE_KEY = 'bet-slips:v1';
 
 interface AppState {
   tracks: TrackSession[];
@@ -124,7 +124,7 @@ export default function App() {
   useEffect(() => {
     Promise.all([
       AsyncStorage.getItem(STORAGE_KEY),
-      AsyncStorage.getItem('bet-slips-native:onboarded'),
+      AsyncStorage.getItem('bet-slips:onboarded'),
     ]).then(([raw, onboarded]) => {
       if (!onboarded) setOnboardingOpen(true);
       if (raw) {
@@ -583,7 +583,7 @@ export default function App() {
   }
 
   function handleDismissOnboarding() {
-    AsyncStorage.setItem('bet-slips-native:onboarded', '1').catch(() => {});
+    AsyncStorage.setItem('bet-slips:onboarded', '1').catch(() => {});
     setOnboardingOpen(false);
   }
 
