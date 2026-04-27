@@ -43,6 +43,8 @@ import { summarizeDay, checkBetOutcome, isBetVisibleAtRace, isBetScratchConflict
 import { haptic } from './src/lib/haptics';
 import { exportBackup, importBackup } from './src/lib/backup';
 import { addToArchive, parseArchive, ARCHIVE_KEY } from './src/lib/archive';
+import { initPurchases, checkEntitlement } from './src/lib/purchases';
+import ProUpgradeModal from './src/components/ProUpgradeModal';
 
 import Header from './src/components/Header';
 import DataManagementModal from './src/components/DataManagementModal';
@@ -119,9 +121,13 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [isPro, setIsPro] = useState(false);
+  const [proModalOpen, setProModalOpen] = useState(false);
 
   // Load persisted state on mount
   useEffect(() => {
+    initPurchases();
+    checkEntitlement().then(setIsPro);
     Promise.all([
       AsyncStorage.getItem(STORAGE_KEY),
       AsyncStorage.getItem('bet-slips:onboarded'),
@@ -269,6 +275,7 @@ export default function App() {
   // ── Track handlers ─────────────────────────────────────────────────────────
 
   function handleAddTrack(name: string) {
+    if (!isPro && tracks.length >= 1) { setProModalOpen(true); return; }
     const newTrack = createTrack(name);
     patchState({
       tracks: [...tracks, newTrack],
@@ -393,6 +400,7 @@ export default function App() {
   // ── Bettor handlers ────────────────────────────────────────────────────────
 
   function handleAddBettor(name: string) {
+    if (!isPro && bettors.length >= 1) { setProModalOpen(true); return; }
     const newBettor = createBettor(name);
     newBettor.raceDay = active.raceDay;
     updateTrack(activeTrackId, {
@@ -588,10 +596,12 @@ export default function App() {
   }
 
   async function handleBackup() {
+    if (!isPro) { setProModalOpen(true); return; }
     await exportBackup(state!, require('./package.json').version);
   }
 
   async function handleRestore() {
+    if (!isPro) { setProModalOpen(true); return; }
     const backup = await importBackup();
     if (!backup) return;
     const backupState = backup.state as AppState;
@@ -974,7 +984,7 @@ export default function App() {
           currentBetUnit={active.betUnit}
           mode="apply"
           onApply={handleApplyTemplate}
-          onSave={handleSaveTemplate}
+          onSave={isPro ? handleSaveTemplate : () => setProModalOpen(true)}
           onDelete={handleDeleteTemplate}
         />
 
@@ -1197,7 +1207,7 @@ export default function App() {
         onClose={() => setSettingsOpen(false)}
         onBackup={handleBackup}
         onRestore={handleRestore}
-        onViewArchive={() => { setSettingsOpen(false); setArchiveOpen(true); }}
+        onViewArchive={() => { setSettingsOpen(false); if (!isPro) { setProModalOpen(true); } else { setArchiveOpen(true); } }}
         onViewGuide={() => { setSettingsOpen(false); setOnboardingOpen(true); }}
         backupSummary={`${state.tracks.length} track${state.tracks.length !== 1 ? 's' : ''}, ${state.tracks.reduce((n, t) => n + t.bettors.length, 0)} bettor${state.tracks.reduce((n, t) => n + t.bettors.length, 0) !== 1 ? 's' : ''}`}
       />
@@ -1210,6 +1220,12 @@ export default function App() {
       <OnboardingModal
         visible={onboardingOpen}
         onDismiss={handleDismissOnboarding}
+      />
+
+      <ProUpgradeModal
+        visible={proModalOpen}
+        onClose={() => setProModalOpen(false)}
+        onUnlocked={() => { setIsPro(true); setProModalOpen(false); }}
       />
     </SafeAreaView>
     </SafeAreaProvider>
