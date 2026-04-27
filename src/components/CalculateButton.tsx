@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, Text, StyleSheet } from 'react-native';
+import { Pressable, Text, View, StyleSheet } from 'react-native';
 import { colors, spacing, radius, font } from '../theme';
 import { haptic } from '../lib/haptics';
 
@@ -15,22 +15,55 @@ export default function CalculateButton({
   pendingCost,
 }: CalculateButtonProps) {
   const costStr = pendingCost != null
-    ? ` ${pendingCost % 1 === 0 ? `$${pendingCost}` : `$${pendingCost.toFixed(2)}`}`
-    : '';
-  const label = `Add${costStr} Bet →`;
+    ? (pendingCost % 1 === 0 ? `$${pendingCost}` : `$${pendingCost.toFixed(2)}`)
+    : null;
 
   return (
-    <Pressable
-      style={[styles.btn, disabled && styles.disabled]}
-      onPress={() => { haptic.medium(); onClick(); }}
-      disabled={disabled}
-    >
-      <Text style={styles.text}>{label}</Text>
-    </Pressable>
+    <View>
+      {costStr != null && (
+        <View style={styles.costBanner}>
+          <Text style={styles.costLabel}>Bet Total</Text>
+          <Text style={styles.costAmount}>{costStr}</Text>
+        </View>
+      )}
+      <Pressable
+        style={[styles.btn, disabled && styles.disabled]}
+        onPress={() => { haptic.medium(); onClick(); }}
+        disabled={disabled}
+      >
+        <Text style={styles.text}>
+          {costStr != null ? `Add ${costStr} Bet →` : 'Add Bet →'}
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  costBanner: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginHorizontal: spacing.lg,
+    marginTop: spacing.md,
+    marginBottom: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    backgroundColor: colors.surfaceHigh,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  costLabel: {
+    color: colors.textMuted,
+    fontSize: font.sm,
+    fontWeight: '600',
+  },
+  costAmount: {
+    color: colors.primary,
+    fontSize: font.xl,
+    fontWeight: '800',
+  },
   btn: {
     backgroundColor: colors.primary,
     borderRadius: radius.lg,

@@ -103,6 +103,7 @@ export default function BetSummaryModal({
                 {bets.map((bet, i) => (
                   <View key={i} style={styles.bet}>
                     <Text style={styles.betType}>
+                      ${bet.unitCost.toFixed(2)}{' '}
                       {bet.betType}
                       {bet.modifier && bet.modifier !== 'Straight'
                         ? ` (${bet.modifier})`
@@ -110,7 +111,7 @@ export default function BetSummaryModal({
                     </Text>
                     <Text style={styles.betHorses}>{formatHorses(bet)}</Text>
                     <Text style={styles.betCost}>
-                      ${bet.unitCost.toFixed(2)} × {bet.combinations} ={' '}
+                      × {bet.combinations} ={' '}
                       <Text style={styles.betCostBold}>
                         ${bet.totalCost.toFixed(2)}
                       </Text>

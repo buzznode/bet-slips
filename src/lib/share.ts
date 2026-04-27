@@ -34,8 +34,8 @@ export function buildSlipText(
     for (const bet of bets) {
       const modifier = bet.modifier && bet.modifier !== 'Straight' ? ` (${bet.modifier})` : '';
       const horses = formatHorses(bet);
-      const cost = `$${bet.unitCost.toFixed(2)} × ${bet.combinations} = $${bet.totalCost.toFixed(2)}`;
-      lines.push(`  ${bet.betType}${modifier}  ${horses}  ${cost}`);
+      const cost = `× ${bet.combinations} = $${bet.totalCost.toFixed(2)}`;
+      lines.push(`  $${bet.unitCost.toFixed(2)} ${bet.betType}${modifier}  ${horses}  ${cost}`);
     }
     lines.push('');
   }
@@ -56,5 +56,8 @@ export async function shareSlip(
   bettors: BettorState[],
 ): Promise<void> {
   const text = buildSlipText(trackName, raceNumber, bettors);
-  await Share.share({ message: text });
+  await Share.share({
+    message: text,
+    title: `${trackName} — Race ${raceNumber} Bet Slip`,
+  });
 }
