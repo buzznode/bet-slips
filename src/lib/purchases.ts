@@ -6,7 +6,7 @@ const ENTITLEMENT_ID = 'BetSlips Pro';
 // Replace ANDROID_KEY after RevenueCat Google Play connection is verified.
 // Replace IOS_KEY after Apple developer account is approved and iOS app is
 // added to RevenueCat.
-const ANDROID_KEY = 'goog_PLACEHOLDER';
+const ANDROID_KEY = 'goog_WKjVJpYiCKGOAPQvkoWuJrCElzQ';
 const IOS_KEY = 'appl_PLACEHOLDER';
 
 export function initPurchases() {
