@@ -121,7 +121,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
-  const [isPro, setIsPro] = useState(false);
+  const [isPro, setIsPro] = useState(__DEV__);
   const [proModalOpen, setProModalOpen] = useState(false);
 
   // Load persisted state on mount
