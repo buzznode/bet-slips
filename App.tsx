@@ -127,7 +127,7 @@ export default function App() {
   // Load persisted state on mount
   useEffect(() => {
     initPurchases();
-    checkEntitlement().then(setIsPro);
+    if (!__DEV__) checkEntitlement().then(setIsPro);
     Promise.all([
       AsyncStorage.getItem(STORAGE_KEY),
       AsyncStorage.getItem('bet-slips:onboarded'),
