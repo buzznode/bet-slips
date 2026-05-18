@@ -7,12 +7,16 @@ const ENTITLEMENT_ID = 'BetSlips Pro';
 // Replace IOS_KEY after Apple developer account is approved and iOS app is
 // added to RevenueCat.
 const ANDROID_KEY = 'goog_WKjVJpYiCKGOAPQvkoWuJrCElzQ';
-const IOS_KEY = 'appl_PLACEHOLDER';
+const IOS_KEY = 'appl_NnsFfxZYsvLsRAnJzdcYGVkmyHJ';
 
 export function initPurchases() {
-  const apiKey = Platform.OS === 'android' ? ANDROID_KEY : IOS_KEY;
-  if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.DEBUG);
-  Purchases.configure({ apiKey });
+  try {
+    const apiKey = Platform.OS === 'android' ? ANDROID_KEY : IOS_KEY;
+    if (__DEV__) Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+    Purchases.configure({ apiKey });
+  } catch (e: any) {
+    if (!__DEV__) console.error('[RC init]', e?.message ?? e);
+  }
 }
 
 export async function checkEntitlement(): Promise<boolean> {
@@ -40,7 +44,8 @@ export async function purchasePro(): Promise<{
     return { success, userCancelled: false };
   } catch (e: any) {
     if (e?.userCancelled) return { success: false, userCancelled: true };
-    return { success: false, userCancelled: false, error: 'Purchase failed. Please try again.' };
+    const msg = e?.message ?? e?.code ?? String(e);
+    return { success: false, userCancelled: false, error: `Purchase failed: ${msg}` };
   }
 }
 

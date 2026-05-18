@@ -55,7 +55,7 @@ After completing any code change, always do all of the following without being a
 - Entitlement ID: `BetSlips Pro`
 - `isPro` defaults to `true` in `__DEV__` mode so all features are accessible during development
 
-## RevenueCat Status (as of 2026-04-27)
+## RevenueCat Status (as of 2026-05-09)
 
 ### RevenueCat Dashboard
 - Project: BetSlips (`proj14cf468e`) at app.revenuecat.com
@@ -67,8 +67,8 @@ After completing any code change, always do all of the following without being a
 - App: BetSlips (Play Store), package `com.buzznode.betslips`
 - Product ID: `betslips_pro_lifetime`, $12.99, Active/Published
 - Production API key: `goog_WKjVJpYiCKGOAPQvkoWuJrCElzQ` (active in code)
-- Credentials warning: Google Play service account permissions may still be propagating — check dashboard and retry if still showing
 - Key file: `lot-check/google-service-account.json` (shared service account, `firstsourcellc@firstsourcellc.iam.gserviceaccount.com`)
+- Pub/Sub: configured and verified (test notification received in RevenueCat 2026-05-09)
 
 ### iOS (App Store)
 - **NOT YET SET UP** — waiting on Apple developer account approval
@@ -97,7 +97,7 @@ After completing any code change, always do all of the following without being a
 - v1.9.47 (version code 3): in review (original submission, 2026-04-26)
 - v2.0.0 (version code 5): in review (RevenueCat Pro paywall, submitted 2026-04-27)
 - Store screenshots: uploaded (8 screenshots, 1206×2622)
-- Tax/W-9: resubmitted as First Source LLC business entity — pending Google verification
+- Tax/W-9: Form W-9 submitted 2026-04-27 as First Source LLC — verified in payments profile with no pending flags as of 2026-05-09
 
 ### App Store (iOS)
 - Bundle ID: `com.buzznode.betslips`
@@ -105,9 +105,9 @@ After completing any code change, always do all of the following without being a
 - Once approved: add iOS RevenueCat config, create IAP product, build and submit
 
 ### Google Play Tax Issue
-- W-9 was originally submitted as individual (Bradley Warren Duderstadt) but account is First Source, LLC
-- Resubmitted as business W-9 for First Source LLC — pending Google verification
-- Until resolved: 24% withholding rate applies
+- W-9 originally submitted as individual (Bradley Warren Duderstadt), corrected and resubmitted as First Source LLC on 2026-04-27
+- As of 2026-05-09: payments profile shows First Source LLC with no pending/rejected flags — appears resolved
+- Withholding status will be confirmed on first real transaction
 
 ## Key Files
 

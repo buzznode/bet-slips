@@ -2,7 +2,7 @@
   "expo": {
     "name": "Bet Slips",
     "slug": "bet-slips-native",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
@@ -35,9 +35,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "react-native-purchases"
-    ],
     "extra": {
       "eas": {
         "projectId": "081035ac-11be-4b53-a9d0-5614cf3802df"
